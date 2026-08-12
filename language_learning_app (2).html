@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyglot - Language Learning App</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #FFFFFF;
+        }
+        .duo-btn-shadow {
+            box-shadow: 0 4px 0 #E5E5E5;
+        }
+        .duo-btn-active-shadow {
+            box-shadow: 0 4px 0 #1899D6;
+        }
+        .duo-btn-success-shadow {
+            box-shadow: 0 4px 0 #46A302;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-[#3C3C3C]">
+
+    <!-- Main Container -->
+    <div id="app" class="flex-grow flex flex-col max-w-md mx-auto w-full p-5 justify-between">
+        
+        <!-- Top Navigation Status Bar -->
+        <div class="flex items-center justify-between gap-4 w-full mb-8">
+            <button onclick="resetLesson()" class="text-xl font-bold text-[#AFAFAF] hover:text-[#3C3C3C] transition-colors cursor-pointer">✕</button>
+            
+            <!-- Progress Bar Frame -->
+            <div class="flex-grow h-4 bg-[#E5E5E5] rounded-full overflow-hidden">
+                <div id="progress-bar" class="w-0 h-full bg-[#58CC02] rounded-full transition-all duration-300 ease-out"></div>
+            </div>
+            
+            <!-- Streak Tracker Engine Display -->
+            <div class="flex items-center gap-1 font-bold text-[#FF9600]">
+                <span>🔥</span>
+                <span id="streak-display">0</span>
+            </div>
+        </div>
+
+        <!-- Quiz Presentation Screen -->
+        <div id="quiz-container" class="flex-grow flex flex-col justify-center my-auto w-full">
+            <h2 class="text-2xl font-bold mb-2 text-[#3C3C3C]">Translate this word:</h2>
+            <div id="question-word" class="text-3xl font-black text-[#1CB0F6] mb-8 tracking-wide border-b-2 border-dashed border-[#E5E5E5] pb-2 inline-block w-fit">...</div>
+            
+            <!-- Multiple Choice Grid -->
+            <div id="choices-grid" class="grid grid-cols-1 gap-3 w-full">
+                <!-- Buttons injected by JavaScript dynamically -->
+            </div>
+        </div>
+
+        <!-- Lesson Completed Summary Screen (Initially Hidden) -->
+        <div id="completion-container" class="hidden flex-grow flex flex-col items-center justify-center text-center my-auto">
+            <div class="text-6xl mb-4 animate-bounce">🎉</div>
+            <h2 class="text-3xl font-black text-[#58CC02] mb-2">Lesson Complete!</h2>
+            <p class="text-[#777777] mb-6 text-lg">You are doing fantastic! Keep up the daily momentum.</p>
+            
+            <div class="bg-[#F7F7F7] border-2 border-[#E5E5E5] rounded-2xl p-4 w-full flex justify-around mb-8">
+                <div>
+                    <div class="text-[#777777] text-xs font-bold uppercase tracking-wider">Total XP</div>
+                    <div class="text-2xl font-bold text-[#1CB0F6]">+10 XP</div>
+                </div>
+                <div class="border-l-2 border-[#E5E5E5]"></div>
+                <div>
+                    <div class="text-[#777777] text-xs font-bold uppercase tracking-wider">Current Streak</div>
+                    <div class="text-2xl font-bold text-[#FF9600]"><span id="final-streak-display">0</span> Days</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Action Control Footer Footer -->
+        <div class="w-full mt-6">
+            <!-- Feedback Overlay Block (Correct/Incorrect message banners) -->
+            <div id="feedback-banner" class="hidden rounded-2xl p-4 mb-4 font-bold flex items-center gap-3">
+                <span id="feedback-icon" class="text-xl"></span>
+                <p id="feedback-text" class="text-sm"></p>
+            </div>
+
+            <button id="action-btn" onclick="checkAnswer()" disabled class="w-full bg-[#E5E5E5] text-[#AFAFAF] text-lg font-bold py-3.5 rounded-2xl uppercase tracking-wider duo-btn-shadow border-b-4 border-transparent cursor-not-allowed transition-all">
+                Check Answer
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Local Vocabulary Word Database Dictionary
+        const wordsDatabase = [
+            { id: 1, foreign: "perro", native: "dog" },
+            { id: 2, foreign: "gato", native: "cat" },
+            { id: 3, foreign: "agua", native: "water" },
+            { id: 4, foreign: "manzana", native: "apple" },
+            { id: 5, foreign: "hola", native: "hello" },
+            { id: 6, foreign: "gracias", native: "thank you" },
+            { id: 7, foreign: "leche", native: "milk" },
+            { id: 8, foreign: "libro", native: "book" },
+            { id: 9, foreign: "amigo", native: "friend" },
+            { id: 10, foreign: "sol", native: "sun" }
+        ];
+
+        // Application State Management Engine
+        let currentQuestionIndex = 0;
+        const totalQuestions = 5; // Length of one lesson unit
+        let lessonWords = [];
+        let selectedAnswer = null;
+        let correctAnswer = null;
+        let isAnswerChecked = false;
+
+        // Initialize Application
+        window.onload = function() {
+            setupStreak();
+            startNewLesson();
+        };
+
+        // Persistent Login Streak Engine Logic
+        function setupStreak() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            let streakCount = parseInt(localStorage.getItem('user_streak') || '0');
+            let lastActiveDate = localStorage.getItem('last_active_date');
+
+            if (lastActiveDate) {
+                const lastActive = new Date(lastActiveDate);
+                const today = new Date(todayStr);
+                const differenceInTime = today.getTime() - lastActive.getTime();
+                const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
+
+                if (differenceInDays === 1) {
+                    // Logged in exactly the next day, streak keeps going
+                } else if (differenceInDays > 1) {
+                    streakCount = 0; // Missed a day, reset streak
+                }
+            }
+            
+            // If it's a completely brand new user session setup default values
+            if (streakCount === 0) {
+                streakCount = 1; 
+                localStorage.setItem('user_streak', '1');
+                localStorage.setItem('last_active_date', todayStr);
+            }
+
+            document.getElementById('streak-display').innerText = streakCount;
+            document.getElementById('final-streak-display').innerText = streakCount;
+        }
+
+        function incrementStreakOnCompletion() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            let streakCount = parseInt(localStorage.getItem('user_streak') || '1');
+            let lastActiveDate = localStorage.getItem('last_active_date');
+
+            if (lastActiveDate !== todayStr) {
+                streakCount += 1;
+                localStorage.setItem('user_streak', streakCount.toString());
+                localStorage.setItem('last_active_date', todayStr);
+            }
+
+            document.getElementById('streak-display').innerText = streakCount;
+            document.getElementById('final-streak-display').innerText = streakCount;
+        }
+
+        // Lesson Management Engine
+        function startNewLesson() {
+            currentQuestionIndex = 0;
+            // Shuffle database array and pick 5 unique words for the current lesson instance
+            lessonWords = [...wordsDatabase].sort(() => 0.5 - Math.random()).slice(0, totalQuestions);
+            showQuestion();
+            updateProgressBar();
+        }
+
+        function resetLesson() {
+            if(confirm("Are you sure you want to quit this lesson? Your current progress will be lost.")) {
+                startNewLesson();
+            }
+        }
+
+        // Quiz Question Generator Layout Logic
+        function showQuestion() {
+            isAnswerChecked = false;
+            selectedAnswer = null;
+            
+            // Clear feedback banners completely
+            const banner = document.getElementById('feedback-banner');
+            banner.className = "hidden rounded-2xl p-4 mb-4 font-bold flex items-center gap-3";
+            
+            // Reset main action execution button
+            const actionBtn = document.getElementById('action-btn');
+            actionBtn.innerText = "Check Answer";
+            actionBtn.disabled = true;
+            actionBtn.className = "w-full bg-[#E5E5E5] text-[#AFAFAF] text-lg font-bold py-3.5 rounded-2xl uppercase tracking-wider duo-btn-shadow border-b-4 border-transparent cursor-not-allowed transition-all";
+
+            const currentWord = lessonWords[currentQuestionIndex];
+            correctAnswer = currentWord.native;
+
+            document.getElementById('question-word').innerText = currentWord.foreign;
+
+            // Generate distractors (wrong choices)
+            const wrongChoices = wordsDatabase
+                .filter(w => w.native !== correctAnswer)
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 3)
+                .map(w => w.native);
+
+            // Merge and shuffle full multi-choice array
+            const allChoices = [correctAnswer, ...wrongChoices].sort(() => 0.5 - Math.random());
+
+            // Inject Choice Buttons into Document Tree
+            const choicesGrid = document.getElementById('choices-grid');
+            choicesGrid.innerHTML = '';
+
+            allChoices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.innerText = choice;
+                btn.className = "w-full text-left font-bold text-lg p-4 rounded-2xl border-2 border-[#E5E5E5] bg-white hover:bg-[#F7F7F7] active:bg-[#E5E5E5] duo-btn-shadow border-b-4 cursor-pointer transition-all focus:outline-none";
+                btn.onclick = () => selectChoice(btn, choice);
+                choicesGrid.appendChild(btn);
+            });
+        }
+
+        // User Interface Selection State Updates
+        function selectChoice(buttonElement, value) {
+            if (isAnswerChecked) return;
+
+            selectedAnswer = value;
+
+            // Reset borders on all option items inside the layout view grid
+            const buttons = document.getElementById('choices-grid').getElementsByTagName('button');
+            for (let btn of buttons) {
+                btn.className = "w-full text-left font-bold text-lg p-4 rounded-2xl border-2 border-[#E5E5E5] bg-white hover:bg-[#F7F7F7] duo-btn-shadow border-b-4 cursor-pointer transition-all focus:outline-none";
+            }
+
+            // Highlight target button UI properties
+            buttonElement.className = "w-full text-left font-bold text-lg p-4 rounded-2xl border-2 border-[#1CB0F6] bg-[#DDF4FF] text-[#1899D6] duo-btn-active-shadow border-b-4 cursor-pointer transition-all focus:outline-none";
+
+            // Activate bottom checking confirmation button control
+            const actionBtn = document.getElementById('action-btn');
+            actionBtn.disabled = false;
+            actionBtn.className = "w-full bg-[#58CC02] text-white text-lg font-bold py-3.5 rounded-2xl uppercase tracking-wider duo-btn-success-shadow border-b-4 border-transparent cursor-pointer transition-all hover:bg-[#61E002]";
+        }
+
+        // Answer Validation Engine Logic
+        function checkAnswer() {
+            const actionBtn = document.getElementById('action-btn');
+            const banner = document.getElementById('feedback-banner');
+            const iconSpan = document.getElementById('feedback-icon');
+            const textParam = document.getElementById('feedback-text');
+
+            if (!isAnswerChecked) {
+                // Perform check step execution logic
+                isAnswerChecked = true;
+                const buttons = document.getElementById('choices-grid').getElementsByTagName('button');
+
+                if (selectedAnswer === correctAnswer) {
+                    // Correct implementation state UI tracking
+                    banner.className = "rounded-2xl p-4 mb-4 font-bold flex items-center gap-3 bg-[#D7FFB7] text-[#46A302]";
+                    iconSpan.innerText = "✔";
+                    textParam.innerText = "Excellent job! You got it right.";
+                    
+                    // Style the selected choice explicitly green
+                    for (let btn of buttons) {
+                        if (btn.innerText === selectedAnswer) {
+                            btn.className = "w-full text-left font-bold text-lg p-4 rounded-2xl border-2 border-[#58CC02] bg-[#D7FFB7] text-[#46A302] duo-btn-success-shadow border-b-4 focus:outline-none";
+                        }
+                    }
+                } else {
+                    // Incorrect evaluation branch tracking
+                    banner.className = "rounded-2xl p-4 mb-4 font-bold flex items-center gap-3 bg-[#FFD3D3] text-[#EA2B2B]";
+                    iconSpan.innerText = "✕";
+                    textParam.innerText = `Correct solution: ${correctAnswer}`;
+
+                    // Style the selected button red and highlight the right answer
+                    for (let btn of buttons) {
+                        if (btn.innerText === selectedAnswer) {
+                            btn.className = "w-full text-left font-bold text-lg p-4 rounded-2xl border-2 border-[#EA2B2B] bg-[#FFD3D3] text-[#EA2B2B] box-shadow:0_4px_0_#EA2B2B focus:outline-none";
+                        }
+                        if (btn.innerText === correctAnswer) {
+                            btn.className = "w-full text-left font-bold text-lg p-4 rounded-2xl border-2 border-[#58CC02] bg-[#D7FFB7] text-[#46A302] duo-btn-success-shadow border-b-4 focus:outline-none";
+                        }
+                    }
+                }
+
+                actionBtn.innerText = "Continue";
+                currentQuestionIndex++;
+                updateProgressBar();
+            } else {
+                // Progress navigation loop continuation rule execution
+                if (currentQuestionIndex < totalQuestions) {
+                    showQuestion();
+                } else {
+                    displayCompletionScreen();
+                }
+            }
+        }
+
+        // Progress Tracking Widget Engine
+        function updateProgressBar() {
+            const percentage = (currentQuestionIndex / totalQuestions) * 100;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        // End Game Frame Handling Function
+        function displayCompletionScreen() {
+            incrementStreakOnCompletion();
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('completion-container').classList.remove('hidden');
+            
+            const actionBtn = document.getElementById('action-btn');
+            actionBtn.innerText = "Practice Again";
+            actionBtn.className = "w-full bg-[#1CB0F6] text-white text-lg font-bold py-3.5 rounded-2xl uppercase tracking-wider duo-btn-active-shadow border-b-4 border-transparent cursor-pointer transition-all hover:bg-[#24BFFF]";
+            actionBtn.onclick = function() {
+                // Re-wire button function to reset framework
+                location.reload();
+            };
+        }
+    </script>
+</body>
+</html>
