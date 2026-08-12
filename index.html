@@ -1,146 +1,1192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dreamspeak - Smart Multi-Language Platform</title>
-    <!-- Stable Tailwind CSS Engine Configuration -->
-    <script src="https://tailwindcss.com"></script>
-    <style>
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(1.5deg); }
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
-        }
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .float-anim { animation: float 4s ease-in-out infinite; }
-        .shake-anim { animation: shake 0.35s ease-in-out; }
-        .pop-anim { animation: pop 0.25s ease-in-out; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dreamspeak — Learn a Language with a Sheep</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#4b1e9e;
+    --purple:#8b2ff0;
+    --pink:#ff3fa4;
+    --lime:#7bf542;
+    --gold:#ffcd3c;
+    --sky:#37d0ff;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    font-family:'Nunito',sans-serif;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,63,164,0.35), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(55,208,255,0.30), transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(123,245,66,0.18), transparent 45%),
+      linear-gradient(135deg, var(--indigo), var(--purple) 55%, #2c0f63 100%);
+    min-height:100vh;
+    color:#fff;
+    overflow-x:hidden;
+  }
+  .font-display{font-family:'Baloo 2', cursive;}
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.3);border-radius:10px;}
+
+  /* ---------- Buttons ---------- */
+  .btn-push{
+    transition: transform .08s ease, box-shadow .08s ease, filter .15s ease;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.25);
+    will-change: transform;
+  }
+  .btn-push:active{
+    transform: translateY(6px);
+    box-shadow: 0 0 0 rgba(0,0,0,0.25);
+  }
+  .btn-push:hover{filter:brightness(1.08);}
+  .btn-push:disabled{opacity:.5; cursor:not-allowed; filter:none;}
+
+  .card-3d{
+    box-shadow: 0 10px 0 rgba(0,0,0,0.18), 0 20px 40px rgba(0,0,0,0.35);
+  }
+
+  /* ---------- Sheep ---------- */
+  .sheep-wrap{ display:inline-block; }
+  .sheep{
+    font-size: 5.5rem;
+    display:inline-block;
+    filter: drop-shadow(0 12px 18px rgba(0,0,0,0.4));
+    animation: sheepFloat 3.2s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+  @keyframes sheepFloat{
+    0%,100%{ transform: translateY(0) rotate(-2deg); }
+    50%{ transform: translateY(-14px) rotate(2deg); }
+  }
+  .sheep.blink{ animation: sheepFloat 3.2s ease-in-out infinite, blinkEye .45s ease; }
+  @keyframes blinkEye{
+    0%,100%{ filter: drop-shadow(0 12px 18px rgba(0,0,0,0.4)) brightness(1); }
+    50%{ filter: drop-shadow(0 12px 18px rgba(0,0,0,0.4)) brightness(0.55); }
+  }
+  .sheep.correct{
+    animation: sheepLeap .7s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes sheepLeap{
+    0%{ transform: translateY(0) scale(1) rotate(0deg); }
+    30%{ transform: translateY(-60px) scale(1.25) rotate(-8deg); }
+    55%{ transform: translateY(-70px) scale(1.3) rotate(8deg); }
+    100%{ transform: translateY(0) scale(1) rotate(0deg); }
+  }
+  .sheep.incorrect{
+    animation: sheepWince .6s ease;
+  }
+  @keyframes sheepWince{
+    0%{ transform: translateX(0) rotate(0); }
+    20%{ transform: translateX(-10px) rotate(-6deg); }
+    40%{ transform: translateX(8px) rotate(5deg) scale(0.94); }
+    60%{ transform: translateX(-6px) rotate(-3deg); }
+    100%{ transform: translateX(0) rotate(0); }
+  }
+  .sheep-burst{
+    position:absolute; inset:0; pointer-events:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.6rem;
+  }
+  .burst-emoji{
+    position:absolute; opacity:0; font-size:1.8rem;
+    animation: burstOut 0.9s ease-out forwards;
+  }
+  @keyframes burstOut{
+    0%{ opacity:1; transform: translate(0,0) scale(0.5); }
+    100%{ opacity:0; transform: translate(var(--bx), var(--by)) scale(1.3) rotate(30deg); }
+  }
+
+  /* ---------- Screen shake ---------- */
+  .shake{
+    animation: shakeCard 0.5s cubic-bezier(.36,.07,.19,.97);
+  }
+  @keyframes shakeCard{
+    10%,90%{ transform: translateX(-1px); }
+    20%,80%{ transform: translateX(6px); }
+    30%,50%,70%{ transform: translateX(-12px); }
+    40%,60%{ transform: translateX(12px); }
+  }
+
+  /* ---------- Progress bar ---------- */
+  .progress-track{
+    background: rgba(255,255,255,0.15);
+    border-radius: 999px;
+    overflow:hidden;
+    height: 18px;
+    border: 3px solid rgba(255,255,255,0.25);
+  }
+  .progress-fill{
+    height:100%;
+    background: linear-gradient(90deg,#7bf542,#3ee06f);
+    border-radius:999px;
+    transition: width 0.7s cubic-bezier(.22,1,.36,1);
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,0.15), 0 0 12px rgba(123,245,66,0.6);
+  }
+
+  /* ---------- Confetti ---------- */
+  .confetti-piece{
+    position: fixed;
+    top: -20px;
+    width: 10px; height: 14px;
+    opacity: 0.95;
+    pointer-events:none;
+    z-index: 200;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall{
+    0%{ transform: translateY(0) rotate(0deg); opacity:1; }
+    100%{ transform: translateY(105vh) rotate(720deg); opacity:0.2; }
+  }
+
+  /* ---------- Views ---------- */
+  .view{ display:none; }
+  .view.active{ display:block; animation: fadeSlideIn .45s ease; }
+  @keyframes fadeSlideIn{
+    from{ opacity:0; transform: translateY(18px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  .lang-card{
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .lang-card:hover{ transform: translateY(-6px) scale(1.03); }
+
+  .option-btn{
+    transition: transform .1s ease, background .2s ease, border-color .2s ease;
+  }
+  .option-btn:hover:not(:disabled){ transform: translateY(-3px); }
+  .option-btn.correct-flash{
+    background: linear-gradient(135deg,#3ee06f,#1fb857) !important;
+    border-color:#1fb857 !important;
+  }
+  .option-btn.incorrect-flash{
+    background: linear-gradient(135deg,#ff5c7a,#e0264a) !important;
+    border-color:#e0264a !important;
+  }
+
+  /* ---------- Drawer ---------- */
+  #shopDrawer{
+    transform: translateX(100%);
+    transition: transform .35s cubic-bezier(.22,1,.36,1);
+  }
+  #shopDrawer.open{ transform: translateX(0); }
+  #shopOverlay{
+    opacity:0; pointer-events:none;
+    transition: opacity .35s ease;
+  }
+  #shopOverlay.open{ opacity:1; pointer-events:auto; }
+
+  .glass{
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(10px);
+  }
+
+  .pill{
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .streak-fire{
+    display:inline-block;
+    animation: fireWiggle 1.4s ease-in-out infinite;
+  }
+  @keyframes fireWiggle{
+    0%,100%{ transform: rotate(-4deg) scale(1); }
+    50%{ transform: rotate(4deg) scale(1.08); }
+  }
+
+  .toast{
+    position: fixed;
+    top: 20px; right: 20px;
+    z-index: 300;
+    transform: translateX(120%);
+    transition: transform .4s cubic-bezier(.22,1,.36,1);
+  }
+  .toast.show{ transform: translateX(0); }
+
+  .radio-card{
+    transition: all .15s ease;
+    cursor:pointer;
+  }
+  .radio-card.selected{
+    background: linear-gradient(135deg, rgba(255,205,60,0.25), rgba(255,63,164,0.25));
+    border-color: #ffcd3c !important;
+  }
+
+  .leader-row.you{
+    background: linear-gradient(90deg, rgba(255,205,60,0.25), transparent);
+    border-left: 4px solid var(--gold);
+  }
+
+  .badge-tier{
+    font-family:'Baloo 2', cursive;
+  }
+
+  #wagerModal, #placementModal{ }
+
+  .fade-in-up{ animation: fadeSlideIn .5s ease both; }
+</style>
 </head>
-<body class="bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 font-sans min-h-screen flex flex-col justify-between select-none">
+<body>
 
-    <!-- Top Navigation Dashboard Status Panel Header -->
-    <header id="app-header" class="bg-white/90 backdrop-blur-md border-b-4 border-purple-200 p-4 sticky top-0 z-50 hidden shadow-sm">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <button onclick="showScreen('welcome')" class="bg-gray-100 hover:bg-gray-200 text-gray-500 h-10 w-10 flex items-center justify-center font-black rounded-2xl border-2 border-gray-200 transition-all cursor-pointer">
-                ✕
-            </button>
-            
-            <!-- Progress Completion Bar Tracking Segment -->
-            <div id="progress-container" class="w-1/3 h-5 bg-purple-100 rounded-full overflow-hidden mx-2 border-2 border-purple-200 p-0.5">
-                <div id="progress-bar" class="h-full bg-gradient-to-r from-emerald-400 to-green-500 rounded-full transition-all duration-500 shadow-sm" style="width: 10%"></div>
-            </div>
+<!-- ============ SCREEN: LANGUAGE HUB ============ -->
+<div id="view-hub" class="view active min-h-screen px-4 py-10">
+  <div class="max-w-5xl mx-auto text-center">
+    <div class="sheep-wrap relative mb-2">
+      <span class="sheep" id="hubSheep">🐑</span>
+    </div>
+    <h1 class="font-display text-5xl md:text-6xl font-extrabold mb-2 tracking-wide drop-shadow-lg">Dreamspeak</h1>
+    <p class="text-lg md:text-xl text-white/85 font-semibold mb-10">Baa-sics to brilliance. Pick a language and let's graze through fluency together. 🌿</p>
 
-            <!-- Dashboard Statistics Arrays Displays Components -->
-            <div class="flex items-center space-x-2 font-black text-xs">
-                <span class="bg-orange-50 border-2 border-orange-200 text-orange-600 px-2.5 py-1.5 rounded-2xl flex items-center">🔥 <span id="streak-val">1</span></span>
-                <span class="bg-blue-50 border-2 border-blue-200 text-blue-600 px-2.5 py-1.5 rounded-2xl flex items-center">✨ <span id="xp-val">0</span></span>
-                <button onclick="showScreen('shop')" class="bg-fuchsia-50 hover:bg-fuchsia-100 text-fuchsia-600 px-2 py-1.5 rounded-2xl border-2 border-fuchsia-200 flex items-center transition-all cursor-pointer shadow-xs">💎 <span id="gem-val">50</span></button>
-                <button onclick="showScreen('leaderboard')" class="bg-amber-50 hover:bg-amber-100 border-2 border-amber-300 text-amber-700 h-8 w-8 flex items-center justify-center rounded-2xl transition-all cursor-pointer">🏆</button>
-            </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <button onclick="startPlacement('spanish')" class="lang-card btn-push card-3d rounded-3xl p-6 bg-gradient-to-br from-pink-500 to-orange-400 border-4 border-white/30">
+        <div class="text-6xl mb-3">🇪🇸</div>
+        <div class="font-display text-2xl font-bold">Spanish</div>
+        <div class="text-white/80 text-sm mt-1 font-semibold">Español</div>
+      </button>
+      <button onclick="startPlacement('french')" class="lang-card btn-push card-3d rounded-3xl p-6 bg-gradient-to-br from-sky-500 to-indigo-500 border-4 border-white/30">
+        <div class="text-6xl mb-3">🇫🇷</div>
+        <div class="font-display text-2xl font-bold">French</div>
+        <div class="text-white/80 text-sm mt-1 font-semibold">Français</div>
+      </button>
+      <button onclick="startPlacement('japanese')" class="lang-card btn-push card-3d rounded-3xl p-6 bg-gradient-to-br from-rose-500 to-fuchsia-600 border-4 border-white/30">
+        <div class="text-6xl mb-3">🇯🇵</div>
+        <div class="font-display text-2xl font-bold">Japanese</div>
+        <div class="text-white/80 text-sm mt-1 font-semibold">日本語</div>
+      </button>
+      <button onclick="startPlacement('thai')" class="lang-card btn-push card-3d rounded-3xl p-6 bg-gradient-to-br from-emerald-500 to-teal-600 border-4 border-white/30">
+        <div class="text-6xl mb-3">🇹🇭</div>
+        <div class="font-display text-2xl font-bold">Thai</div>
+        <div class="text-white/80 text-sm mt-1 font-semibold">ภาษาไทย</div>
+      </button>
+    </div>
+
+    <div class="glass rounded-3xl p-6 max-w-3xl mx-auto grid grid-cols-3 gap-4 text-center">
+      <div>
+        <div class="text-3xl font-display font-extrabold text-yellow-300" id="hubXP">0</div>
+        <div class="text-xs uppercase font-bold tracking-widest text-white/70">XP</div>
+      </div>
+      <div>
+        <div class="text-3xl font-display font-extrabold text-emerald-300" id="hubGems">0 💎</div>
+        <div class="text-xs uppercase font-bold tracking-widest text-white/70">Gems</div>
+      </div>
+      <div>
+        <div class="text-3xl font-display font-extrabold text-orange-300"><span class="streak-fire">🔥</span> <span id="hubStreak">0</span></div>
+        <div class="text-xs uppercase font-bold tracking-widest text-white/70">Day Streak</div>
+      </div>
+    </div>
+
+    <button onclick="if(state.tier){goToDashboard();}else{alert('Complete a placement test first by picking a language above!');}" class="mt-8 btn-push font-display text-lg font-bold bg-white text-purple-700 px-8 py-3 rounded-2xl border-4 border-purple-200">
+      Continue Learning →
+    </button>
+  </div>
+</div>
+
+<!-- ============ SCREEN: PLACEMENT TEST ============ -->
+<div id="view-placement" class="view min-h-screen px-4 py-10 flex items-center justify-center">
+  <div class="max-w-xl w-full">
+    <div class="text-center mb-6">
+      <span class="sheep" id="placementSheep" style="font-size:4.5rem;">🐑</span>
+      <h2 class="font-display text-3xl font-extrabold mt-2" id="placementLangTitle">Placement Chat</h2>
+      <div class="progress-track mt-4 max-w-xs mx-auto">
+        <div class="progress-fill" id="placementProgress" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="glass card-3d rounded-3xl p-8 border-4 border-white/20" id="placementCard">
+      <!-- Step 1 -->
+      <div id="pstep-1" class="placement-step">
+        <p class="font-display text-xl font-bold mb-5">🐑 "Hiya! Before we hit the pasture — how much do you already know?"</p>
+        <div class="space-y-3" id="pstep1-options"></div>
+      </div>
+      <!-- Step 2 -->
+      <div id="pstep-2" class="placement-step hidden">
+        <p class="font-display text-xl font-bold mb-5">🐑 "Lovely! Now tell me — why are you learning?"</p>
+        <div class="space-y-3" id="pstep2-options"></div>
+      </div>
+      <!-- Step 3 -->
+      <div id="pstep-3" class="placement-step hidden">
+        <p class="font-display text-xl font-bold mb-5">🐑 "Almost there! How much time can you commit daily?"</p>
+        <div class="space-y-3" id="pstep3-options"></div>
+      </div>
+
+      <div class="flex justify-end mt-6">
+        <button id="placementNextBtn" onclick="placementNext()" disabled class="btn-push font-display font-bold bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-3 rounded-2xl border-b-4 border-purple-800 disabled:opacity-40">
+          Next →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN: PLACEMENT RESULT ============ -->
+<div id="view-result" class="view min-h-screen px-4 py-10 flex items-center justify-center">
+  <div class="max-w-lg w-full text-center glass card-3d rounded-3xl p-10 border-4 border-white/20">
+    <div class="text-7xl mb-4" id="resultSheepEmoji">🐑✨</div>
+    <h2 class="font-display text-2xl font-bold mb-1">You've been placed into...</h2>
+    <div id="resultTierBadge" class="badge-tier text-4xl font-extrabold my-4"></div>
+    <p class="text-white/80 mb-6" id="resultBlurb"></p>
+    <button onclick="goToDashboard()" class="btn-push font-display text-lg font-bold bg-gradient-to-r from-lime-400 to-emerald-500 text-emerald-950 px-8 py-3 rounded-2xl border-b-4 border-emerald-700">
+      Start Learning 🚀
+    </button>
+  </div>
+</div>
+
+<!-- ============ SCREEN: DASHBOARD ============ -->
+<div id="view-dashboard" class="view min-h-screen px-4 py-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Top bar -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+      <div class="flex items-center gap-3">
+        <span class="text-4xl">🐑</span>
+        <div>
+          <div class="font-display text-2xl font-extrabold">Dreamspeak</div>
+          <div class="text-xs text-white/70 font-semibold" id="dashTrackLabel">Spanish • Beginner</div>
         </div>
-    </header>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <div class="pill rounded-full px-4 py-2 font-bold flex items-center gap-1"><span class="streak-fire">🔥</span> <span id="dashStreak">0</span></div>
+        <div class="pill rounded-full px-4 py-2 font-bold flex items-center gap-1">⭐ <span id="dashXP">0</span> XP</div>
+        <div class="pill rounded-full px-4 py-2 font-bold flex items-center gap-1">💎 <span id="dashGems">0</span></div>
+        <button onclick="openShop()" class="btn-push rounded-full px-5 py-2 font-display font-bold bg-gradient-to-r from-yellow-400 to-orange-400 text-orange-950 border-b-4 border-orange-700">🛍️ Shop</button>
+        <button onclick="openLeague()" class="btn-push rounded-full px-5 py-2 font-display font-bold bg-gradient-to-r from-sky-400 to-blue-500 border-b-4 border-blue-800">🏆 League</button>
+        <button onclick="switchLanguage()" class="btn-push rounded-full px-4 py-2 font-bold bg-white/10 border border-white/30">Switch Lang</button>
+      </div>
+    </div>
 
-    <!-- App Display Window Context Viewport -->
-    <main class="flex-grow p-4 flex flex-col justify-center items-center max-w-md mx-auto w-full">
-        
-        <!-- SCREEN 1: WELCOME MULTI-LANGUAGE TRACK HUBS -->
-        <section id="welcome-screen" class="w-full space-y-6 text-center">
-            <div class="space-y-2">
-                <div class="text-7xl float-anim drop-shadow-md">🐑</div>
-                <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 tracking-tight">Dreamspeak</h1>
-                <p class="text-purple-600 font-bold bg-purple-100/60 inline-block px-4 py-1.5 rounded-full border border-purple-200/50">Pick a language to start with your wooly sheep!</p>
-            </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2">
+        <div class="glass card-3d rounded-3xl p-6 border-4 border-white/15 mb-6">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-bold text-white/80">Lesson Progress</span>
+            <span class="font-bold text-white/80" id="lessonCount">0 / 10</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="lessonProgress" style="width:0%"></div></div>
+        </div>
 
-            <div class="grid grid-cols-1 gap-4 pt-2">
-                <button onclick="startQuestionnaire('spanish')" class="w-full p-5 bg-white border-b-4 border-r-2 border-gray-200 rounded-3xl flex items-center justify-between hover:border-blue-400 hover:bg-blue-50/30 shadow-sm transition-all group active:scale-98 cursor-pointer">
-                    <div class="flex items-center space-x-4">
-                        <span class="text-4xl">🇪🇸</span>
-                        <div class="text-left"><span class="text-xl font-black text-gray-800 block">Spanish Course</span><span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Español</span></div>
-                    </div>
-                    <span class="text-blue-500 font-black text-sm">Learn ➔</span>
-                </button>
+        <div class="glass card-3d rounded-3xl p-8 border-4 border-white/15 text-center">
+          <span class="text-5xl">🐑</span>
+          <h3 class="font-display text-2xl font-bold mt-3 mb-2">Ready for today's lesson?</h3>
+          <p class="text-white/75 mb-6" id="dashBlurb">Your sheep guide is warmed up and grazing on fresh vocabulary.</p>
+          <button onclick="startQuiz()" class="btn-push font-display text-xl font-bold bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-600 px-10 py-4 rounded-2xl border-b-4 border-purple-900">
+            Start Lesson ▶
+          </button>
+        </div>
+      </div>
 
-                <button onclick="startQuestionnaire('french')" class="w-full p-5 bg-white border-b-4 border-r-2 border-gray-200 rounded-3xl flex items-center justify-between hover:border-indigo-400 hover:bg-indigo-50/30 shadow-sm transition-all group active:scale-98 cursor-pointer">
-                    <div class="flex items-center space-x-4">
-                        <span class="text-4xl">🇫🇷</span>
-                        <div class="text-left"><span class="text-xl font-black text-gray-800 block">French Course</span><span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Français</span></div>
-                    </div>
-                    <span class="text-indigo-500 font-black text-sm">Learn ➔</span>
-                </button>
+      <div class="glass card-3d rounded-3xl p-6 border-4 border-white/15">
+        <h3 class="font-display text-xl font-bold mb-4">🏆 This Week's League</h3>
+        <div id="dashLeaderboardMini" class="space-y-2 text-sm"></div>
+        <button onclick="openLeague()" class="mt-4 w-full btn-push rounded-xl py-2 font-bold bg-white/10 border border-white/25">See Full League</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-                <button onclick="startQuestionnaire('japanese')" class="w-full p-5 bg-white border-b-4 border-r-2 border-gray-200 rounded-3xl flex items-center justify-between hover:border-rose-400 hover:bg-rose-50/30 shadow-sm transition-all group active:scale-98 cursor-pointer">
-                    <div class="flex items-center space-x-4">
-                        <span class="text-4xl">🇯🇵</span>
-                        <div class="text-left"><span class="text-xl font-black text-gray-800 block">Japanese Course</span><span class="text-xs text-gray-400 font-bold uppercase tracking-wider">日本語</span></div>
-                    </div>
-                    <span class="text-rose-500 font-black text-sm">Learn ➔</span>
-                </button>
+<!-- ============ SCREEN: QUIZ ============ -->
+<div id="view-quiz" class="view min-h-screen px-4 py-8 flex flex-col items-center">
+  <div class="w-full max-w-2xl">
+    <div class="flex items-center gap-4 mb-6">
+      <button onclick="exitQuiz()" class="text-2xl hover:opacity-70">✖</button>
+      <div class="progress-track flex-1"><div class="progress-fill" id="quizProgress" style="width:0%"></div></div>
+      <div class="pill rounded-full px-3 py-1 font-bold text-sm">❤️ <span id="quizLives">3</span></div>
+    </div>
 
-                <button onclick="startQuestionnaire('thai')" class="w-full p-5 bg-white border-b-4 border-r-2 border-gray-200 rounded-3xl flex items-center justify-between hover:border-emerald-400 hover:bg-emerald-50/30 shadow-sm transition-all group active:scale-98 cursor-pointer">
-                    <div class="flex items-center space-x-4">
-                        <span class="text-4xl">🇹🇭</span>
-                        <div class="text-left"><span class="text-xl font-black text-gray-800 block">Thai Course</span><span class="text-xs text-gray-400 font-bold uppercase tracking-wider">ภาษาไทย</span></div>
-                    </div>
-                    <span class="text-emerald-500 font-black text-sm">Learn ➔</span>
-                </button>
-            </div>
-        </section>
+    <div class="relative flex justify-center mb-4">
+      <div class="sheep-burst" id="sheepBurst"></div>
+      <span class="sheep" id="quizSheep">🐑</span>
+    </div>
 
-        <!-- SCREEN 2: THE INTERACTIVE PLACEMENT QUESTIONNAIRE PANEL -->
-        <section id="survey-screen" class="w-full hidden space-y-6">
-            <div class="flex flex-col items-center space-y-2">
-                <div class="text-6xl float-anim">🐑</div>
-                <div class="bg-white border-2 border-purple-200 rounded-2xl p-3 text-center text-sm font-bold text-purple-900 shadow-sm">
-                    Let's find your perfect lesson path!
-                </div>
-            </div>
+    <div id="quizCard" class="glass card-3d rounded-3xl p-8 border-4 border-white/15">
+      <div class="text-center mb-6">
+        <div class="text-xs uppercase tracking-widest font-bold text-white/60 mb-1" id="quizTierLabel">Beginner</div>
+        <h3 class="font-display text-2xl md:text-3xl font-extrabold" id="quizQuestion">Question</h3>
+      </div>
+      <div id="quizOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+      <div class="mt-6 flex justify-center">
+        <button id="quizContinueBtn" onclick="nextQuestion()" class="hidden btn-push font-display font-bold bg-gradient-to-r from-lime-400 to-emerald-500 text-emerald-950 px-8 py-3 rounded-2xl border-b-4 border-emerald-700">
+          Continue →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
-            <div class="bg-white border-4 border-purple-200 rounded-3xl p-6 shadow-md space-y-4">
-                <div class="flex justify-between items-center text-xs font-black uppercase text-purple-400">
-                    <span id="survey-title">Placement Test</span>
-                    <span id="survey-step-counter">Question 1 of 3</span>
-                </div>
-                
-                <h2 id="survey-prompt" class="text-2xl font-black text-gray-800 leading-snug">How much do you already know?</h2>
-                
-                <div id="survey-choices" class="grid grid-cols-1 gap-3 pt-2">
-                    <!-- Option node elements injected via script arrays -->
-                </div>
-            </div>
-        </section>
+<!-- ============ SCREEN: QUIZ COMPLETE ============ -->
+<div id="view-complete" class="view min-h-screen px-4 py-10 flex items-center justify-center">
+  <div class="max-w-lg w-full text-center glass card-3d rounded-3xl p-10 border-4 border-white/20">
+    <div class="text-7xl mb-4">🐑🎉</div>
+    <h2 class="font-display text-3xl font-extrabold mb-2">Lesson Complete!</h2>
+    <p class="text-white/80 mb-6">Your sheep is bouncing with pride.</p>
+    <div class="grid grid-cols-3 gap-3 mb-8">
+      <div class="glass rounded-2xl p-4"><div class="text-2xl font-extrabold text-yellow-300" id="completeXP">+0</div><div class="text-xs font-bold text-white/70">XP EARNED</div></div>
+      <div class="glass rounded-2xl p-4"><div class="text-2xl font-extrabold text-emerald-300" id="completeGems">+0</div><div class="text-xs font-bold text-white/70">GEMS</div></div>
+      <div class="glass rounded-2xl p-4"><div class="text-2xl font-extrabold text-sky-300" id="completeAcc">0%</div><div class="text-xs font-bold text-white/70">ACCURACY</div></div>
+    </div>
+    <button onclick="goToDashboard()" class="btn-push font-display text-lg font-bold bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-3 rounded-2xl border-b-4 border-purple-900">
+      Back to Dashboard
+    </button>
+  </div>
+</div>
 
-        <!-- SCREEN 3: LESSON QUIZ MODULE INTERFACE -->
-        <section id="quiz-screen" class="w-full hidden space-y-6">
-            <div class="flex flex-col items-center justify-center space-y-2">
-                <div id="char-avatar" class="text-7xl float-anim transition-all duration-300">🐑</div>
-                <div id="char-bubble" class="bg-white border-3 border-purple-200 rounded-2xl p-4 text-center text-purple-950 font-bold text-sm shadow-md">
-                    Translate this phrase for me!
-                </div>
-            </div>
+<!-- ============ SHOP DRAWER ============ -->
+<div id="shopOverlay" class="fixed inset-0 bg-black/60 z-40" onclick="closeShop()"></div>
+<div id="shopDrawer" class="fixed top-0 right-0 h-full w-full sm:w-96 z-50 bg-gradient-to-b from-indigo-900 to-purple-950 border-l-4 border-white/20 p-6 overflow-y-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="font-display text-2xl font-extrabold">🛍️ Gem Shop</h3>
+    <button onclick="closeShop()" class="text-2xl">✖</button>
+  </div>
+  <div class="pill rounded-full px-4 py-2 font-bold text-center mb-6">💎 <span id="shopGems">0</span> Gems Available</div>
 
-            <div id="quiz-card" class="bg-white border-4 border-purple-200 rounded-3xl p-6 shadow-md transition-all">
-                <div class="mb-3">
-                    <span id="tier-badge" class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border border-purple-200">Beginner</span>
-                </div>
-                <h1 id="question-text" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-6">...</h1>
-                
-                <div id="choices-grid" class="grid grid-cols-1 gap-3">
-                    <!-- Core quiz choices button groups -->
-                </div>
-            </div>
-        </section>
+  <div class="space-y-4">
+    <div class="glass rounded-2xl p-5 border-2 border-white/10">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <div class="font-display font-bold text-lg">🧊 Streak Freeze</div>
+          <div class="text-sm text-white/70">Protects your streak for 1 missed day.</div>
+        </div>
+        <div class="font-bold text-emerald-300">200💎</div>
+      </div>
+      <button onclick="buyItem('freeze',200)" class="w-full btn-push mt-2 rounded-xl py-2 font-bold bg-sky-500 border-b-4 border-sky-800">Buy</button>
+    </div>
 
-        <!-- SCREEN 4: STOREFRONT -->
-        <section id="shop-screen" class="w-full hidden space-y-4">
-            <div class="flex justify-between items-center border-b-2 border-purple-100 pb-3">
-                <h2 class="text-2xl font-black text-purple-700">💎 Points Shop</h2>
+    <div class="glass rounded-2xl p-5 border-2 border-white/10">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <div class="font-display font-bold text-lg">🎲 Double or Nothing</div>
+          <div class="text-sm text-white/70">Wager gems: finish today's lesson with 100% accuracy to double them!</div>
+        </div>
+        <div class="font-bold text-emerald-300">100💎</div>
+      </div>
+      <button onclick="openWager()" class="w-full btn-push mt-2 rounded-xl py-2 font-bold bg-pink-500 border-b-4 border-pink-800">Wager</button>
+    </div>
+
+    <div class="glass rounded-2xl p-5 border-2 border-white/10">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <div class="font-display font-bold text-lg">❤️ Refill Hearts</div>
+          <div class="text-sm text-white/70">Restore all lives instantly.</div>
+        </div>
+        <div class="font-bold text-emerald-300">150💎</div>
+      </div>
+      <button onclick="buyItem('hearts',150)" class="w-full btn-push mt-2 rounded-xl py-2 font-bold bg-rose-500 border-b-4 border-rose-800">Buy</button>
+    </div>
+
+    <div class="glass rounded-2xl p-5 border-2 border-white/10">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <div class="font-display font-bold text-lg">⚡ XP Boost (30 min)</div>
+          <div class="text-sm text-white/70">Earn 2x XP on your next lesson.</div>
+        </div>
+        <div class="font-bold text-emerald-300">120💎</div>
+      </div>
+      <button onclick="buyItem('boost',120)" class="w-full btn-push mt-2 rounded-xl py-2 font-bold bg-amber-500 border-b-4 border-amber-800">Buy</button>
+    </div>
+  </div>
+
+  <div class="mt-6 text-xs text-white/60" id="shopInventory"></div>
+</div>
+
+<!-- ============ WAGER MODAL ============ -->
+<div id="wagerModal" class="fixed inset-0 bg-black/70 z-[60] hidden items-center justify-center">
+  <div class="glass card-3d rounded-3xl p-8 max-w-sm w-full mx-4 border-4 border-white/20 text-center">
+    <div class="text-5xl mb-3">🎲🐑</div>
+    <h3 class="font-display text-2xl font-bold mb-2">Double or Nothing</h3>
+    <p class="text-white/80 mb-4">Wager 100💎. Score 100% on your next lesson to double it — miss even once and you lose the wager!</p>
+    <div class="flex gap-3">
+      <button onclick="closeWager()" class="flex-1 btn-push rounded-xl py-3 font-bold bg-white/10 border border-white/30">Cancel</button>
+      <button onclick="confirmWager()" class="flex-1 btn-push rounded-xl py-3 font-bold bg-gradient-to-r from-pink-500 to-purple-600">Wager 100💎</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LEAGUE MODAL ============ -->
+<div id="leagueModal" class="fixed inset-0 bg-black/70 z-[60] hidden items-center justify-center px-4">
+  <div class="glass card-3d rounded-3xl p-8 max-w-md w-full border-4 border-white/20">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-display text-2xl font-bold">🏆 Weekly League</h3>
+      <button onclick="closeLeague()" class="text-2xl">✖</button>
+    </div>
+    <p class="text-white/70 text-sm mb-4">Top 3 promote to the next league on Sunday!</p>
+    <div id="leagueList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast glass rounded-2xl px-5 py-3 font-bold border-2 border-white/20"></div>
+
+<script>
+/* ==================================================================
+   DREAMSPEAK — CORE APPLICATION SCRIPT
+   ================================================================== */
+
+/* ---------------- STATE ---------------- */
+const DEFAULT_STATE = {
+  xp: 0,
+  gems: 300,
+  streak: 0,
+  lastPlayDate: null,
+  language: null,
+  tier: null, // beginner | intermediate | advanced
+  lessonsCompleted: 0,
+  inventory: { freeze: 0, hearts: 0, boost: 0 },
+  wagerActive: false,
+  leaderboard: null
+};
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem('dreamspeak_state_v1');
+    if(raw){
+      const parsed = JSON.parse(raw);
+      return Object.assign({}, DEFAULT_STATE, parsed);
+    }
+  }catch(e){}
+  return Object.assign({}, DEFAULT_STATE);
+}
+function saveState(){
+  localStorage.setItem('dreamspeak_state_v1', JSON.stringify(state));
+}
+
+/* ---------------- AUDIO SYNTH ---------------- */
+let audioCtx = null;
+function getCtx(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return audioCtx;
+}
+function playTone(freq, duration, type='sine', vol=0.18, delay=0){
+  try{
+    const ctx = getCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.value = vol;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const startTime = ctx.currentTime + delay;
+    osc.start(startTime);
+    gain.gain.setValueAtTime(vol, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+    osc.stop(startTime + duration + 0.02);
+  }catch(e){}
+}
+function sfxClick(){ playTone(420, 0.08, 'square', 0.08); }
+function sfxCorrect(){
+  playTone(523.25, 0.12, 'sine', 0.16, 0);
+  playTone(659.25, 0.12, 'sine', 0.16, 0.09);
+  playTone(783.99, 0.18, 'sine', 0.16, 0.18);
+}
+function sfxIncorrect(){
+  playTone(220, 0.22, 'sawtooth', 0.15, 0);
+  playTone(160, 0.28, 'sawtooth', 0.13, 0.08);
+}
+function sfxComplete(){
+  playTone(523.25,0.14,'triangle',0.16,0);
+  playTone(659.25,0.14,'triangle',0.16,0.12);
+  playTone(783.99,0.14,'triangle',0.16,0.24);
+  playTone(1046.5,0.22,'triangle',0.18,0.36);
+}
+function sfxCoin(){
+  playTone(988,0.08,'square',0.12,0);
+  playTone(1318,0.12,'square',0.12,0.06);
+}
+function sfxWhoosh(){ playTone(300,0.15,'sine',0.08,0); }
+
+/* ---------------- VIEW ROUTER ---------------- */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------------- TOAST ---------------- */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ---------------- CONTENT ENGINE ---------------- */
+const LANGUAGES = {
+  spanish: { name:'Spanish', flag:'🇪🇸' },
+  french: { name:'French', flag:'🇫🇷' },
+  japanese: { name:'Japanese', flag:'🇯🇵' },
+  thai: { name:'Thai', flag:'🇹🇭' }
+};
+
+// Content pools: [term, translation]
+const CONTENT = {
+  spanish:{
+    beginner:[["Dog","Perro"],["Cat","Gato"],["Water","Agua"],["Bread","Pan"],["House","Casa"],["Book","Libro"],["Sun","Sol"],["Moon","Luna"],["Friend","Amigo"],["Food","Comida"],["Red","Rojo"],["Big","Grande"],["Small","Pequeño"],["Happy","Feliz"],["School","Escuela"]],
+    intermediate:[["Where is the train station?","¿Dónde está la estación de tren?"],["I'd like to make a reservation.","Quisiera hacer una reservación."],["Could I see the menu, please?","¿Podría ver el menú, por favor?"],["Turn left at the corner.","Gire a la izquierda en la esquina."],["How much does this cost?","¿Cuánto cuesta esto?"],["I'm just looking, thank you.","Solo estoy mirando, gracias."],["Can you recommend a good restaurant?","¿Puede recomendar un buen restaurante?"],["The check, please.","La cuenta, por favor."],["I need to exchange currency.","Necesito cambiar moneda."],["Is this seat taken?","¿Está ocupado este asiento?"]],
+    advanced:[["Breach of contract","Incumplimiento de contrato"],["Informed consent","Consentimiento informado"],["Merger and acquisition","Fusión y adquisición"],["Statute of limitations","Plazo de prescripción"],["Diagnosis and prognosis","Diagnóstico y pronóstico"],["Intellectual property rights","Derechos de propiedad intelectual"],["Liability clause","Cláusula de responsabilidad"],["Quarterly earnings report","Informe de ganancias trimestrales"],["Cease and desist","Cesar y desistir"],["Chronic condition","Afección crónica"]]
+  },
+  french:{
+    beginner:[["Dog","Chien"],["Cat","Chat"],["Water","Eau"],["Bread","Pain"],["House","Maison"],["Book","Livre"],["Sun","Soleil"],["Moon","Lune"],["Friend","Ami"],["Food","Nourriture"],["Red","Rouge"],["Big","Grand"],["Small","Petit"],["Happy","Heureux"],["School","École"]],
+    intermediate:[["Where is the train station?","Où est la gare?"],["I'd like to make a reservation.","Je voudrais faire une réservation."],["Could I see the menu, please?","Puis-je voir le menu, s'il vous plaît?"],["Turn left at the corner.","Tournez à gauche au coin."],["How much does this cost?","Combien ça coûte?"],["I'm just looking, thank you.","Je regarde seulement, merci."],["Can you recommend a good restaurant?","Pouvez-vous recommander un bon restaurant?"],["The check, please.","L'addition, s'il vous plaît."],["I need to exchange currency.","Je dois changer de l'argent."],["Is this seat taken?","Cette place est-elle occupée?"]],
+    advanced:[["Breach of contract","Rupture de contrat"],["Informed consent","Consentement éclairé"],["Merger and acquisition","Fusion et acquisition"],["Statute of limitations","Délai de prescription"],["Diagnosis and prognosis","Diagnostic et pronostic"],["Intellectual property rights","Droits de propriété intellectuelle"],["Liability clause","Clause de responsabilité"],["Quarterly earnings report","Rapport des résultats trimestriels"],["Cease and desist","Cesser et s'abstenir"],["Chronic condition","Maladie chronique"]]
+  },
+  japanese:{
+    beginner:[["Dog","犬 (inu)"],["Cat","猫 (neko)"],["Water","水 (mizu)"],["Bread","パン (pan)"],["House","家 (ie)"],["Book","本 (hon)"],["Sun","太陽 (taiyō)"],["Moon","月 (tsuki)"],["Friend","友達 (tomodachi)"],["Food","食べ物 (tabemono)"],["Red","赤 (aka)"],["Big","大きい (ōkii)"],["Small","小さい (chiisai)"],["Happy","幸せ (shiawase)"],["School","学校 (gakkō)"]],
+    intermediate:[["Where is the train station?","駅はどこですか (Eki wa doko desu ka)"],["I'd like to make a reservation.","予約したいです (Yoyaku shitai desu)"],["Could I see the menu, please?","メニューを見せてください (Menyū o misete kudasai)"],["Turn left at the corner.","角を左に曲がってください (Kado o hidari ni magatte kudasai)"],["How much does this cost?","これはいくらですか (Kore wa ikura desu ka)"],["I'm just looking, thank you.","見ているだけです (Miteiru dake desu)"],["Can you recommend a good restaurant?","良いレストランを教えてください (Yoi resutoran o oshiete kudasai)"],["The check, please.","お会計をお願いします (Okaikei o onegaishimasu)"],["I need to exchange currency.","両替が必要です (Ryōgae ga hitsuyō desu)"],["Is this seat taken?","この席は空いていますか (Kono seki wa aiteimasu ka)"]],
+    advanced:[["Breach of contract","契約違反 (Keiyaku ihan)"],["Informed consent","説明と同意 (Setsumei to dōi)"],["Merger and acquisition","合併と買収 (Gappei to baishū)"],["Statute of limitations","時効 (Jikō)"],["Diagnosis and prognosis","診断と予後 (Shindan to yogo)"],["Intellectual property rights","知的財産権 (Chiteki zaisanken)"],["Liability clause","責任条項 (Sekinin jōkō)"],["Quarterly earnings report","四半期決算報告 (Shihanki kessan hōkoku)"],["Cease and desist","停止命令 (Teishi meirei)"],["Chronic condition","慢性疾患 (Mansei shikkan)"]]
+  },
+  thai:{
+    beginner:[["Dog","หมา (mǎa)"],["Cat","แมว (maeo)"],["Water","น้ำ (náam)"],["Bread","ขนมปัง (khanom pang)"],["House","บ้าน (bâan)"],["Book","หนังสือ (nǎngsǔue)"],["Sun","ดวงอาทิตย์ (duang aathit)"],["Moon","พระจันทร์ (phrá jan)"],["Friend","เพื่อน (phûuan)"],["Food","อาหาร (aahǎan)"],["Red","สีแดง (sǐi daeng)"],["Big","ใหญ่ (yài)"],["Small","เล็ก (lék)"],["Happy","มีความสุข (mii khwaam sùk)"],["School","โรงเรียน (roong rian)"]],
+    intermediate:[["Where is the train station?","สถานีรถไฟอยู่ที่ไหน (sathǎanii rót fai yùu thîi nǎi)"],["I'd like to make a reservation.","ผมอยากจองโต๊ะ (phǒm yàak jong tó)"],["Could I see the menu, please?","ขอเมนูหน่อยครับ (khǒ menuu nòi khráp)"],["Turn left at the corner.","เลี้ยวซ้ายที่หัวมุม (líeow sáai thîi hǔa mum)"],["How much does this cost?","นี่ราคาเท่าไหร่ (nîi raakhaa thâorài)"],["I'm just looking, thank you.","แค่ดูเฉยๆครับ (khâe duu chŏei chŏei khráp)"],["Can you recommend a good restaurant?","ช่วยแนะนำร้านอาหารดีๆหน่อย (chûai náenam ráan aahǎan dii dii nòi)"],["The check, please.","เก็บเงินด้วยครับ (kèp ngoen dûai khráp)"],["I need to exchange currency.","ผมต้องแลกเงิน (phǒm tông lâek ngoen)"],["Is this seat taken?","ที่นี่มีคนจองไหม (thîi nîi mii khon jong mǎi)"]],
+    advanced:[["Breach of contract","การผิดสัญญา (kaan phìt sǎnyaa)"],["Informed consent","ความยินยอมโดยรับทราบ (khwaam yin yom dooi ráp sâap)"],["Merger and acquisition","การควบรวมและซื้อกิจการ (kaan khûap ruam láe súue kìtjakaan)"],["Statute of limitations","อายุความ (aayú khwaam)"],["Diagnosis and prognosis","การวินิจฉัยและการพยากรณ์โรค (kaan wínítchai láe kaan phayaakoon rôok)"],["Intellectual property rights","สิทธิในทรัพย์สินทางปัญญา (sìtthì nai sáp sǐn thaang panyaa)"],["Liability clause","ข้อกำหนดความรับผิด (khô kamnòt khwaam ráp phìt)"],["Quarterly earnings report","รายงานผลประกอบการรายไตรมาส (raai ngaan phǒn prakòb kaan raai trai mâat)"],["Cease and desist","คำสั่งให้ระงับการกระทำ (kham sàng hâi rangáp kaan kratham)"],["Chronic condition","โรคเรื้อรัง (rôok rúearang)"]]
+  }
+};
+
+const TIER_META = {
+  beginner:{ icon:'🌱', label:'Beginner', color:'from-green-400 to-emerald-500', blurb:"Fresh grass, fresh start! We'll build your foundation word by word." },
+  intermediate:{ icon:'🚀', label:'Intermediate', color:'from-sky-400 to-indigo-500', blurb:"You've got momentum — let's tackle real conversations." },
+  advanced:{ icon:'🎓', label:'Fluent / Advanced', color:'from-pink-500 to-fuchsia-600', blurb:"Sharpening the technical edge. Fluency-level content, incoming." }
+};
+
+/* ---------------- PLACEMENT TEST ---------------- */
+const PLACEMENT_QUESTIONS = [
+  {
+    key:'knowledge',
+    options:[
+      {label:"I'm starting from zero", value:0},
+      {label:"I know some basic words", value:1},
+      {label:"I can hold simple conversations", value:2},
+      {label:"I'm nearly fluent already", value:3}
+    ]
+  },
+  {
+    key:'motivation',
+    options:[
+      {label:"Travel & fun", value:0},
+      {label:"Connecting with family/friends", value:1},
+      {label:"Career & business", value:2},
+      {label:"Moving abroad / full fluency", value:3}
+    ]
+  },
+  {
+    key:'commitment',
+    options:[
+      {label:"5 minutes a day", value:0},
+      {label:"15 minutes a day", value:1},
+      {label:"30 minutes a day", value:2},
+      {label:"1 hour+ a day", value:3}
+    ]
+  }
+];
+
+let placementState = { lang:null, step:1, answers:{}, selected:null };
+
+function startPlacement(lang){
+  sfxClick();
+  placementState = { lang, step:1, answers:{}, selected:null };
+  document.getElementById('placementLangTitle').textContent =
+    `${LANGUAGES[lang].flag} ${LANGUAGES[lang].name} Placement`;
+  renderPlacementStep();
+  showView('view-placement');
+}
+
+function renderPlacementStep(){
+  document.querySelectorAll('.placement-step').forEach(el=>el.classList.add('hidden'));
+  const stepEl = document.getElementById('pstep-'+placementState.step);
+  stepEl.classList.remove('hidden');
+  const q = PLACEMENT_QUESTIONS[placementState.step-1];
+  const container = document.getElementById('pstep'+placementState.step+'-options');
+  container.innerHTML = '';
+  q.options.forEach((opt, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'radio-card glass rounded-xl p-4 border-2 border-white/15 font-semibold';
+    div.textContent = opt.label;
+    div.onclick = ()=>{
+      sfxClick();
+      container.querySelectorAll('.radio-card').forEach(c=>c.classList.remove('selected'));
+      div.classList.add('selected');
+      placementState.answers[q.key] = opt.value;
+      document.getElementById('placementNextBtn').disabled = false;
+    };
+    container.appendChild(div);
+  });
+  document.getElementById('placementNextBtn').disabled = true;
+  document.getElementById('placementProgress').style.width =
+    ((placementState.step-1)/3*100)+'%';
+  document.getElementById('placementNextBtn').textContent =
+    placementState.step === 3 ? 'See My Result →' : 'Next →';
+
+  const sheep = document.getElementById('placementSheep');
+  sheep.classList.remove('correct');
+  void sheep.offsetWidth;
+  sheep.classList.add('blink');
+}
+
+function placementNext(){
+  sfxClick();
+  if(placementState.step < 3){
+    placementState.step++;
+    renderPlacementStep();
+  } else {
+    document.getElementById('placementProgress').style.width = '100%';
+    finishPlacement();
+  }
+}
+
+function finishPlacement(){
+  const total = (placementState.answers.knowledge||0) +
+                (placementState.answers.motivation||0) +
+                (placementState.answers.commitment||0);
+  // max total = 9
+  let tier;
+  if(total <= 3) tier = 'beginner';
+  else if(total <= 6) tier = 'intermediate';
+  else tier = 'advanced';
+
+  state.language = placementState.lang;
+  state.tier = tier;
+  state.lessonsCompleted = 0;
+  saveState();
+
+  const meta = TIER_META[tier];
+  document.getElementById('resultTierBadge').innerHTML =
+    `<span class="bg-gradient-to-r ${meta.color} bg-clip-text text-transparent">${meta.icon} ${meta.label}</span>`;
+  document.getElementById('resultBlurb').textContent = meta.blurb;
+  sfxComplete();
+  spawnConfetti(40);
+  showView('view-result');
+}
+
+function switchLanguage(){
+  showView('view-hub');
+}
+
+/* ---------------- DASHBOARD ---------------- */
+function goToDashboard(){
+  refreshHubStats();
+  updateDashboard();
+  ensureLeaderboard();
+  renderMiniLeaderboard();
+  showView('view-dashboard');
+}
+
+function updateDashboard(){
+  const meta = TIER_META[state.tier] || TIER_META.beginner;
+  document.getElementById('dashTrackLabel').textContent =
+    `${LANGUAGES[state.language].flag} ${LANGUAGES[state.language].name} • ${meta.icon} ${meta.label}`;
+  document.getElementById('dashStreak').textContent = state.streak;
+  document.getElementById('dashXP').textContent = state.xp;
+  document.getElementById('dashGems').textContent = state.gems;
+  document.getElementById('dashBlurb').textContent = meta.blurb;
+  const lessonsForNext = 10;
+  const within = state.lessonsCompleted % lessonsForNext;
+  document.getElementById('lessonCount').textContent = `${within} / ${lessonsForNext}`;
+  document.getElementById('lessonProgress').style.width = (within/lessonsForNext*100)+'%';
+}
+
+function refreshHubStats(){
+  document.getElementById('hubXP').textContent = state.xp;
+  document.getElementById('hubGems').textContent = state.gems+' 💎';
+  document.getElementById('hubStreak').textContent = state.streak;
+}
+
+/* ---------------- STREAK LOGIC ---------------- */
+function registerDailyPlay(){
+  const today = new Date().toDateString();
+  if(state.lastPlayDate === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  if(state.lastPlayDate === yesterday){
+    state.streak += 1;
+  } else if(state.lastPlayDate === null){
+    state.streak = 1;
+  } else if(state.inventory.freeze > 0){
+    state.inventory.freeze -= 1;
+    state.streak += 1;
+    toast('🧊 Streak Freeze used — your streak survived!');
+  } else {
+    state.streak = 1;
+  }
+  state.lastPlayDate = today;
+  saveState();
+}
+
+/* ---------------- QUIZ ENGINE ---------------- */
+let quiz = { pool:[], idx:0, correctCount:0, lives:3, questions:[], currentAnswer:null, answered:false };
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildQuizQuestions(){
+  const pool = CONTENT[state.language][state.tier];
+  const shuffledPool = shuffle(pool);
+  const count = Math.min(8, shuffledPool.length);
+  const chosen = shuffledPool.slice(0, count);
+  return chosen.map(item=>{
+    const [term, translation] = item;
+    // Distractors: pool of other translations from same tier (and other tiers as fallback)
+    let distractorSource = pool.filter(p=>p[1] !== translation).map(p=>p[1]);
+    if(distractorSource.length < 3){
+      Object.values(CONTENT[state.language]).forEach(tierArr=>{
+        tierArr.forEach(p=>{ if(p[1] !== translation) distractorSource.push(p[1]); });
+      });
+    }
+    const distractors = shuffle(distractorSource).slice(0,3);
+    const options = shuffle([translation, ...distractors]);
+    return { term, translation, options };
+  });
+}
+
+function startQuiz(){
+  sfxClick();
+  quiz.questions = buildQuizQuestions();
+  quiz.idx = 0;
+  quiz.correctCount = 0;
+  quiz.lives = 3;
+  document.getElementById('quizLives').textContent = quiz.lives;
+  document.getElementById('quizTierLabel').textContent =
+    `${LANGUAGES[state.language].name} • ${TIER_META[state.tier].label}`;
+  renderQuestion();
+  showView('view-quiz');
+}
+
+function renderQuestion(){
+  quiz.answered = false;
+  const q = quiz.questions[quiz.idx];
+  document.getElementById('quizQuestion').textContent = `How do you say "${q.term}"?`;
+  document.getElementById('quizProgress').style.width = (quiz.idx/quiz.questions.length*100)+'%';
+  const container = document.getElementById('quizOptions');
+  container.innerHTML = '';
+  q.options.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'option-btn btn-push glass rounded-2xl p-4 border-3 border-white/20 font-bold text-left';
+    btn.style.borderWidth = '3px';
+    btn.textContent = opt;
+    btn.onclick = ()=>selectAnswer(opt, btn);
+    container.appendChild(btn);
+  });
+  document.getElementById('quizContinueBtn').classList.add('hidden');
+  const sheep = document.getElementById('quizSheep');
+  sheep.className = 'sheep';
+  sheep.textContent = '🐑';
+}
+
+function selectAnswer(chosen, btnEl){
+  if(quiz.answered) return;
+  quiz.answered = true;
+  sfxClick();
+  const q = quiz.questions[quiz.idx];
+  const isCorrect = chosen === q.translation;
+  const allBtns = document.querySelectorAll('#quizOptions .option-btn');
+  allBtns.forEach(b=>{ b.disabled = true; });
+
+  if(isCorrect){
+    btnEl.classList.add('correct-flash');
+    quiz.correctCount++;
+    sfxCorrect();
+    animateSheepCorrect();
+    const gain = 10 + (state.tier==='advanced'?5:state.tier==='intermediate'?2:0);
+    state.xp += gain;
+    state.gems += 5;
+    saveState();
+    refreshHubStats();
+  } else {
+    btnEl.classList.add('incorrect-flash');
+    allBtns.forEach(b=>{ if(b.textContent === q.translation) b.classList.add('correct-flash'); });
+    quiz.lives--;
+    document.getElementById('quizLives').textContent = Math.max(quiz.lives,0);
+    sfxIncorrect();
+    animateSheepIncorrect();
+    shakeCard();
+  }
+  document.getElementById('quizContinueBtn').classList.remove('hidden');
+
+  if(quiz.lives <= 0){
+    setTimeout(()=>{
+      toast('💔 Out of lives! Ending lesson early.');
+      finishQuiz();
+    }, 900);
+  }
+}
+
+function shakeCard(){
+  const card = document.getElementById('quizCard');
+  card.classList.remove('shake');
+  void card.offsetWidth;
+  card.classList.add('shake');
+}
+
+function animateSheepCorrect(){
+  const sheep = document.getElementById('quizSheep');
+  sheep.className = 'sheep correct';
+  sheep.textContent = '🐑✨';
+  spawnBurst(['✨','🌟','💫','⭐'], 6);
+}
+function animateSheepIncorrect(){
+  const sheep = document.getElementById('quizSheep');
+  sheep.className = 'sheep incorrect';
+  sheep.textContent = '🐑💨';
+}
+
+function spawnBurst(emojis, count){
+  const burstEl = document.getElementById('sheepBurst');
+  for(let i=0;i<count;i++){
+    const span = document.createElement('span');
+    span.className = 'burst-emoji';
+    span.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    const angle = Math.random()*Math.PI*2;
+    const dist = 60 + Math.random()*60;
+    span.style.setProperty('--bx', (Math.cos(angle)*dist)+'px');
+    span.style.setProperty('--by', (Math.sin(angle)*dist - 40)+'px');
+    span.style.left = '50%';
+    span.style.top = '50%';
+    burstEl.appendChild(span);
+    setTimeout(()=>span.remove(), 950);
+  }
+}
+
+function nextQuestion(){
+  sfxClick();
+  quiz.idx++;
+  if(quiz.idx >= quiz.questions.length){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function exitQuiz(){
+  if(confirm("Leave this lesson? Your progress on this lesson won't be saved.")){
+    goToDashboard();
+  }
+}
+
+function finishQuiz(){
+  document.getElementById('quizProgress').style.width = '100%';
+  const total = quiz.questions.length;
+  const accuracy = Math.round((quiz.correctCount/total)*100);
+  const xpEarned = quiz.correctCount * (10 + (state.tier==='advanced'?5:state.tier==='intermediate'?2:0));
+  const gemsEarned = quiz.correctCount * 5;
+
+  state.lessonsCompleted += 1;
+  registerDailyPlay();
+
+  // Wager resolution
+  if(state.wagerActive){
+    if(accuracy === 100){
+      state.gems += 100; // wager doubled: 100 staked already deducted, so +100 = 200 total return
+      toast('🎉 Double or Nothing WON! +100💎 bonus');
+    } else {
+      toast('😬 Double or Nothing lost — wager gems forfeited.');
+    }
+    state.wagerActive = false;
+  }
+
+  saveState();
+  refreshHubStats();
+
+  document.getElementById('completeXP').textContent = '+'+xpEarned;
+  document.getElementById('completeGems').textContent = '+'+gemsEarned;
+  document.getElementById('completeAcc').textContent = accuracy+'%';
+  sfxComplete();
+  spawnConfetti(60);
+  simulateBotBoost();
+  showView('view-complete');
+}
+
+/* ---------------- CONFETTI ---------------- */
+const CONFETTI_COLORS = ['#ff3fa4','#ffcd3c','#7bf542','#37d0ff','#8b2ff0','#ffffff'];
+function spawnConfetti(count){
+  for(let i=0;i<count;i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random()*100+'vw';
+    piece.style.background = CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)];
+    piece.style.animationDuration = (2 + Math.random()*1.5)+'s';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    document.body.appendChild(piece);
+    setTimeout(()=>piece.remove(), 3600);
+  }
+}
+
+/* ---------------- SHOP ---------------- */
+function openShop(){
+  sfxWhoosh();
+  document.getElementById('shopGems').textContent = state.gems;
+  renderInventory();
+  document.getElementById('shopOverlay').classList.add('open');
+  document.getElementById('shopDrawer').classList.add('open');
+}
+function closeShop(){
+  document.getElementById('shopOverlay').classList.remove('open');
+  document.getElementById('shopDrawer').classList.remove('open');
+}
+function renderInventory(){
+  const inv = state.inventory;
+  document.getElementById('shopInventory').innerHTML =
+    `Owned — 🧊 Streak Freeze: ${inv.freeze} &nbsp;|&nbsp; ⚡ XP Boost: ${inv.boost}`;
+}
+function buyItem(key, cost){
+  sfxClick();
+  if(state.gems < cost){
+    toast("💎 Not enough gems!");
+    return;
+  }
+  state.gems -= cost;
+  if(key === 'hearts'){
+    quiz.lives = 3;
+    toast('❤️ Hearts refilled!');
+  } else {
+    state.inventory[key] = (state.inventory[key]||0) + 1;
+    toast(key === 'freeze' ? '🧊 Streak Freeze purchased!' : '⚡ XP Boost purchased!');
+  }
+  saveState();
+  refreshHubStats();
+  document.getElementById('shopGems').textContent = state.gems;
+  document.getElementById('dashGems').textContent = state.gems;
+  renderInventory();
+  sfxCoin();
+}
+
+function openWager(){
+  document.getElementById('wagerModal').classList.remove('hidden');
+  document.getElementById('wagerModal').classList.add('flex');
+}
+function closeWager(){
+  document.getElementById('wagerModal').classList.add('hidden');
+  document.getElementById('wagerModal').classList.remove('flex');
+}
+function confirmWager(){
+  if(state.gems < 100){
+    toast('💎 Not enough gems to wager!');
+    closeWager();
+    return;
+  }
+  if(state.wagerActive){
+    toast('You already have an active wager!');
+    closeWager();
+    return;
+  }
+  state.gems -= 100;
+  state.wagerActive = true;
+  saveState();
+  refreshHubStats();
+  document.getElementById('shopGems').textContent = state.gems;
+  document.getElementById('dashGems').textContent = state.gems;
+  toast('🎲 Wager placed! Score 100% on your next lesson.');
+  closeWager();
+  sfxCoin();
+}
+
+/* ---------------- LEAGUE / LEADERBOARD ---------------- */
+const BOT_NAMES = ['Fernanda_Fluent','KenjiSpeaks','ThaiTiger','ParisPaws','Rosalinda99','BleatMaster','WoolfgangXP','LinguaLola','SabaiSam','MoutonMax'];
+
+function ensureLeaderboard(){
+  if(state.leaderboard) return;
+  const bots = shuffle(BOT_NAMES).slice(0,6).map(name=>({
+    name, xp: 400 + Math.floor(Math.random()*1400), isBot:true
+  }));
+  state.leaderboard = bots;
+  saveState();
+}
+
+function getFullLeaderboard(){
+  const list = state.leaderboard.slice();
+  list.push({ name:'You', xp: state.xp, isBot:false });
+  list.sort((a,b)=>b.xp-a.xp);
+  return list;
+}
+
+function renderMiniLeaderboard(){
+  const list = getFullLeaderboard().slice(0,5);
+  const el = document.getElementById('dashLeaderboardMini');
+  el.innerHTML = '';
+  list.forEach((p, i)=>{
+    const row = document.createElement('div');
+    row.className = 'flex justify-between items-center rounded-lg px-3 py-2 ' + (p.isBot ? '' : 'leader-row you');
+    row.innerHTML = `<span class="font-bold">${i+1}. ${p.isBot?'🤖':'🐑'} ${p.name}</span><span class="font-extrabold text-yellow-300">${p.xp} XP</span>`;
+    el.appendChild(row);
+  });
+}
+
+function openLeague(){
+  sfxWhoosh();
+  ensureLeaderboard();
+  renderFullLeaderboard();
+  document.getElementById('leagueModal').classList.remove('hidden');
+  document.getElementById('leagueModal').classList.add('flex');
+}
+function closeLeague(){
+  document.getElementById('leagueModal').classList.add('hidden');
+  document.getElementById('leagueModal').classList.remove('flex');
+}
+function renderFullLeaderboard(){
+  const list = getFullLeaderboard();
+  const el = document.getElementById('leagueList');
+  el.innerHTML = '';
+  list.forEach((p,i)=>{
+    const row = document.createElement('div');
+    row.className = 'flex justify-between items-center rounded-xl px-4 py-3 glass ' + (p.isBot ? '' : 'leader-row you');
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+    row.innerHTML = `<span class="font-bold">${medal} ${p.isBot?'🤖':'🐑'} ${p.name}</span><span class="font-extrabold text-yellow-300">${p.xp} XP</span>`;
+    el.appendChild(row);
+  });
+}
+
+function simulateBotBoost(){
+  if(!state.leaderboard) return;
+  state.leaderboard.forEach(b=>{ b.xp += Math.floor(Math.random()*20)+5; });
+  saveState();
+}
+
+// Background bot ticking — creates the illusion of live competitors
+setInterval(()=>{
+  if(!state.leaderboard) return;
+  state.leaderboard.forEach(b=>{
+    if(Math.random() < 0.6){
+      b.xp += Math.floor(Math.random()*8)+1;
+    }
+  });
+  saveState();
+  if(document.getElementById('view-dashboard').classList.contains('active')){
+    renderMiniLeaderboard();
+  }
+  if(!document.getElementById('leagueModal').classList.contains('hidden')){
+    renderFullLeaderboard();
+  }
+}, 4500);
+
+/* ---------------- SHEEP IDLE BLINK ---------------- */
+setInterval(()=>{
+  document.querySelectorAll('.sheep').forEach(s=>{
+    if(s.classList.contains('correct') || s.classList.contains('incorrect')) return;
+    s.classList.add('blink');
+    setTimeout(()=>s.classList.remove('blink'), 450);
+  });
+}, 3800);
+
+/* ---------------- INIT ---------------- */
+function init(){
+  refreshHubStats();
+  ensureLeaderboard();
+  if(state.language && state.tier){
+    // returning user — hub still shown first per flow, dashboard reachable via Continue
+  }
+}
+init();
+</script>
+</body>
+</html>
