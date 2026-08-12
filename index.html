@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Language Learning App</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        .shake-anim { animation: shake 0.4s ease-in-out; }
+        .pop-anim { animation: pop 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navigation Dashboard -->
+    <header class="bg-white border-b-2 border-gray-200 p-4 sticky top-0 z-50">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <button onclick="showScreen('quiz')" class="text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
+            
+            <!-- Progress Bar -->
+            <div id="progress-container" class="w-1/3 h-4 bg-gray-200 rounded-full overflow-hidden mx-2">
+                <div id="progress-bar" class="h-full bg-green-500 rounded-full transition-all duration-300" style="width: 10%"></div>
+            </div>
+
+            <!-- Stats Dashboard -->
+            <div class="flex items-center space-x-4 font-bold text-sm">
+                <span id="streak-disp" class="text-orange-500 flex items-center">🔥 <span id="streak-val">1</span></span>
+                <span id="xp-disp" class="text-blue-500 flex items-center">✨ <span id="xp-val">0</span></span>
+                <button onclick="showScreen('shop')" class="text-purple-600 hover:opacity-80 flex items-center bg-purple-50 px-2 py-1 rounded border border-purple-200">💎 <span id="gem-val" class="ml-1">50</span></button>
+                <button onclick="showScreen('leaderboard')" class="bg-yellow-100 border border-yellow-300 text-yellow-700 px-2 py-1 rounded">🏆</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content App Window -->
+    <main class="flex-grow p-4 flex flex-col justify-center items-center max-w-md mx-auto w-full">
+        
+        <!-- SCREEN 1: THE QUIZ CHALLENGE -->
+        <section id="quiz-screen" class="w-full space-y-6">
+            <!-- Animated Character State Wrapper -->
+            <div class="flex flex-col items-center justify-center space-y-2">
+                <div id="char-avatar" class="text-6xl float-anim transition-transform duration-200">🦉</div>
+                <div id="char-bubble" class="bg-white border-2 border-gray-200 rounded-xl p-3 relative max-w-xs text-center text-gray-700 text-sm font-medium shadow-sm">
+                    Translate this word to finish your streak!
+                </div>
+            </div>
+
+            <!-- Question Segment Card -->
+            <div id="quiz-card" class="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-sm transition-all">
+                <h2 class="text-gray-400 uppercase tracking-wider text-xs font-bold mb-1">Select the correct translation:</h2>
+                <h1 id="question-text" class="text-3xl font-bold text-blue-500 mb-6">el perro</h1>
+                
+                <!-- Multiple Choice Container Grid -->
+                <div id="choices-grid" class="grid grid-cols-1 gap-3">
+                    <!-- Dynamic Choices Injected Here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: THE POINTS SHOP -->
+        <section id="shop-screen" class="w-full hidden space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 class="text-2xl font-bold text-purple-700">💎 Points Shop</h2>
+                <button onclick="showScreen('quiz')" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-xl text-sm font-bold">Back to Quiz</button>
+            </div>
+            <div class="space-y-3">
+                <div class="bg-white border-2 border-gray-200 p-4 rounded-xl flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-gray-800">Streak Freeze</h4>
+                        <p class="text-xs text-gray-500">Keep your streak safe if you miss a day.</p>
+                    </div>
+                    <button onclick="buyItem('freeze', 20)" class="bg-purple-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-md hover:bg-purple-700">20 💎</button>
+                </div>
+                <div class="bg-white border-2 border-gray-200 p-4 rounded-xl flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-gray-800">Double or Nothing</h4>
+                        <p class="text-xs text-gray-500">Wager 50 gems to win 100 on a 7-day streak.</p>
+                    </div>
+                    <button onclick="buyItem('double', 50)" class="bg-purple-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-md hover:bg-purple-700">50 💎</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: COMPETITION LEADERBOARD -->
+        <section id="leaderboard-screen" class="w-full hidden space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 class="text-2xl font-bold text-yellow-600">🏆 Weekly League</h2>
+                <button onclick="showScreen('quiz')" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-xl text-sm font-bold">Back to Quiz</button>
+            </div>
+            <div id="leaderboard-list" class="bg-white border-2 border-gray-200 rounded-xl divide-y divide-gray-100 overflow-hidden">
+                <!-- Competitors dynamic printout -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Verification Sticky Panel Drawer -->
+    <footer id="action-drawer" class="bg-white border-t-2 border-gray-200 p-4 sticky bottom-0 z-50">
+        <div class="max-w-md mx-auto">
+            <button id="action-btn" onclick="checkAnswerSelection()" class="w-full bg-gray-300 text-gray-500 font-bold py-3 rounded-xl shadow-md transition-all cursor-not-allowed text-center uppercase tracking-wider" disabled>
+                Check Answer
+            </button>
+        </div>
+    </footer>
+
+    <!-- Core App Logic Engine Javascript Context -->
+    <script>
+        // Local Vocabulary Matrix
+        const vocabulary = [
+            { id: 1, foreign: "perro", native: "dog" },
+            { id: 2, foreign: "gato", native: "cat" },
+            { id: 3, foreign: "pájaro", native: "bird" },
+            { id: 4, foreign: "caballo", native: "horse" },
+            { id: 5, foreign: "agua", native: "water" }
+        ];
+
+        // Persistent System State Management
+        let appState = {
+            currentIdx: 0,
+            selectedAnswer: null,
+            correctAnswer: "",
+            streak: parseInt(localStorage.getItem('streak') || '1'),
+            xp: parseInt(localStorage.getItem('xp') || '0'),
+            gems: parseInt(localStorage.getItem('gems') || '50'),
+            competitors: [
+                { name: "LanguagePro 🥇", xp: 120, avatar: "🦊" },
+                { name: "PolyglotLily 🥈", xp: 95, avatar: "🐼" },
+                { name: "SpanishLearner 🥉", xp: 70, avatar: "🐨" },
+                { name: "You (Learner)", xp: 0, avatar: "🦉", isUser: true },
+                { name: "ChattyBot", xp: 30, avatar: "🐸" }
+            ]
+        };
+
+        // Initialization
+        function initApp() {
+            updateDashboardMetrics();
+            loadQuestion();
+            simulateCompetitors();
+        }
+
+        function updateDashboardMetrics() {
+            document.getElementById('streak-val').innerText = appState.streak;
+            document.getElementById('xp-val').innerText = appState.xp;
+            document.getElementById('gem-val').innerText = appState.gems;
+            
+            // Sync user score into Leaderboard Matrix arrays
+            const userObj = appState.competitors.find(c => c.isUser);
+            if(userObj) userObj.xp = appState.xp;
+        }
+
+        function showScreen(screenId) {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('shop-screen').classList.add('hidden');
+            document.getElementById('leaderboard-screen').classList.add('hidden');
+            document.getElementById('action-drawer').classList.remove('hidden');
+
+            if(screenId === 'quiz') document.getElementById('quiz-screen').classList.remove('hidden');
+            if(screenId === 'shop') {
+                document.getElementById('shop-screen').classList.remove('hidden');
+                document.getElementById('action-drawer').classList.add('hidden');
+            }
+            if(screenId === 'leaderboard') {
+                document.getElementById('leaderboard-screen').classList.remove('hidden');
+                document.getElementById('action-drawer').classList.add('hidden');
+                renderLeaderboard();
+            }
+        }
+
+        function loadQuestion() {
+            // Pick a word
+            const dataItem = vocabulary[appState.currentIdx % vocabulary.length];
+            appState.correctAnswer = dataItem.native;
+            appState.selectedAnswer = null;
+
+            // Update UI elements
+            document.getElementById('question-text').innerText = dataItem.foreign;
+            
+            // Character expressions reset
+            document.getElementById('char-avatar').innerText = "🦉";
