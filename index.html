@@ -28,18 +28,20 @@
 </head>
 <body class="bg-gray-50 font-sans min-h-screen flex flex-col justify-between">
 
-    <!-- Top Navigation Dashboard -->
-    <header class="bg-white border-b-2 border-gray-200 p-4 sticky top-0 z-50">
+    <!-- Top Navigation Dashboard (Hidden on Welcome Screen) -->
+    <header id="app-header" class="bg-white border-b-2 border-gray-200 p-4 sticky top-0 z-50 hidden">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <button onclick="showScreen('quiz')" class="text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
+            <button onclick="showScreen('welcome')" class="text-gray-400 hover:text-gray-600 text-xl font-bold flex items-center">
+                <span id="active-lang-flag" class="mr-1">🇪🇸</span> ✕
+            </button>
             
             <!-- Progress Bar -->
             <div id="progress-container" class="w-1/3 h-4 bg-gray-200 rounded-full overflow-hidden mx-2">
                 <div id="progress-bar" class="h-full bg-green-500 rounded-full transition-all duration-300" style="width: 10%"></div>
             </div>
 
-            <!-- Stats Dashboard -->
-            <div class="flex items-center space-x-4 font-bold text-sm">
+            <!-- Stats Dashboard Counters -->
+            <div class="flex items-center space-x-3 font-bold text-sm">
                 <span id="streak-disp" class="text-orange-500 flex items-center">🔥 <span id="streak-val">1</span></span>
                 <span id="xp-disp" class="text-blue-500 flex items-center">✨ <span id="xp-val">0</span></span>
                 <button onclick="showScreen('shop')" class="text-purple-600 hover:opacity-80 flex items-center bg-purple-50 px-2 py-1 rounded border border-purple-200">💎 <span id="gem-val" class="ml-1">50</span></button>
@@ -51,9 +53,43 @@
     <!-- Main Content App Window -->
     <main class="flex-grow p-4 flex flex-col justify-center items-center max-w-md mx-auto w-full">
         
+        <!-- SCREEN 0: MULTI-LANGUAGE WELCOME CHOOSE HUB -->
+        <section id="welcome-screen" class="w-full space-y-6 text-center">
+            <div class="space-y-2">
+                <div class="text-6xl float-anim">🦉</div>
+                <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">Welcome to Dreamspeak!</h1>
+                <p class="text-gray-500 font-medium">What language would you like to learn today?</p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 mt-6">
+                <button onclick="selectLanguage('spanish')" class="w-full p-5 bg-white border-2 border-gray-200 rounded-2xl flex items-center justify-between hover:border-blue-400 hover:bg-blue-50/50 shadow-sm transition-all group">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-4xl">🇪🇸</span>
+                        <span class="text-xl font-bold text-gray-700 group-hover:text-blue-600">Spanish Track</span>
+                    </div>
+                    <span class="text-gray-400 font-medium group-hover:text-blue-500">Start ➔</span>
+                </button>
+
+                <button onclick="selectLanguage('french')" class="w-full p-5 bg-white border-2 border-gray-200 rounded-2xl flex items-center justify-between hover:border-blue-400 hover:bg-blue-50/50 shadow-sm transition-all group">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-4xl">🇫🇷</span>
+                        <span class="text-xl font-bold text-gray-700 group-hover:text-blue-600">French Track</span>
+                    </div>
+                    <span class="text-gray-400 font-medium group-hover:text-blue-500">Start ➔</span>
+                </button>
+
+                <button onclick="selectLanguage('japanese')" class="w-full p-5 bg-white border-2 border-gray-200 rounded-2xl flex items-center justify-between hover:border-blue-400 hover:bg-blue-50/50 shadow-sm transition-all group">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-4xl">🇯🇵</span>
+                        <span class="text-xl font-bold text-gray-700 group-hover:text-blue-600">Japanese Track</span>
+                    </div>
+                    <span class="text-gray-400 font-medium group-hover:text-blue-500">Start ➔</span>
+                </button>
+            </div>
+        </section>
+
         <!-- SCREEN 1: THE QUIZ CHALLENGE -->
-        <section id="quiz-screen" class="w-full space-y-6">
-            <!-- Animated Character State Wrapper -->
+        <section id="quiz-screen" class="w-full hidden space-y-6">
             <div class="flex flex-col items-center justify-center space-y-2">
                 <div id="char-avatar" class="text-6xl float-anim transition-transform duration-200">🦉</div>
                 <div id="char-bubble" class="bg-white border-2 border-gray-200 rounded-xl p-3 relative max-w-xs text-center text-gray-700 text-sm font-medium shadow-sm">
@@ -61,14 +97,12 @@
                 </div>
             </div>
 
-            <!-- Question Segment Card -->
             <div id="quiz-card" class="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-sm transition-all">
                 <h2 class="text-gray-400 uppercase tracking-wider text-xs font-bold mb-1">Select the correct translation:</h2>
-                <h1 id="question-text" class="text-3xl font-bold text-blue-500 mb-6">el perro</h1>
+                <h1 id="question-text" class="text-3xl font-bold text-blue-500 mb-6">...</h1>
                 
-                <!-- Multiple Choice Container Grid -->
                 <div id="choices-grid" class="grid grid-cols-1 gap-3">
-                    <!-- Dynamic Choices Injected Here -->
+                    <!-- Choices injected here -->
                 </div>
             </div>
         </section>
@@ -104,13 +138,13 @@
                 <button onclick="showScreen('quiz')" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-xl text-sm font-bold">Back to Quiz</button>
             </div>
             <div id="leaderboard-list" class="bg-white border-2 border-gray-200 rounded-xl divide-y divide-gray-100 overflow-hidden">
-                <!-- Competitors dynamic printout -->
+                <!-- Rankings printing template -->
             </div>
         </section>
     </main>
 
-    <!-- Bottom Verification Sticky Panel Drawer -->
-    <footer id="action-drawer" class="bg-white border-t-2 border-gray-200 p-4 sticky bottom-0 z-50">
+    <!-- Bottom Action Sheet Drawer -->
+    <footer id="action-drawer" class="bg-white border-t-2 border-gray-200 p-4 sticky bottom-0 z-50 hidden">
         <div class="max-w-md mx-auto">
             <button id="action-btn" onclick="checkAnswerSelection()" class="w-full bg-gray-300 text-gray-500 font-bold py-3 rounded-xl shadow-md transition-all cursor-not-allowed text-center uppercase tracking-wider" disabled>
                 Check Answer
@@ -118,77 +152,22 @@
         </div>
     </footer>
 
-    <!-- Core App Logic Engine Javascript Context -->
+    <!-- App State Mechanics Core JS -->
     <script>
-        // Local Vocabulary Matrix
-        const vocabulary = [
-            { id: 1, foreign: "perro", native: "dog" },
-            { id: 2, foreign: "gato", native: "cat" },
-            { id: 3, foreign: "pájaro", native: "bird" },
-            { id: 4, foreign: "caballo", native: "horse" },
-            { id: 5, foreign: "agua", native: "water" }
-        ];
-
-        // Persistent System State Management
-        let appState = {
-            currentIdx: 0,
-            selectedAnswer: null,
-            correctAnswer: "",
-            streak: parseInt(localStorage.getItem('streak') || '1'),
-            xp: parseInt(localStorage.getItem('xp') || '0'),
-            gems: parseInt(localStorage.getItem('gems') || '50'),
-            competitors: [
-                { name: "LanguagePro 🥇", xp: 120, avatar: "🦊" },
-                { name: "PolyglotLily 🥈", xp: 95, avatar: "🐼" },
-                { name: "SpanishLearner 🥉", xp: 70, avatar: "🐨" },
-                { name: "You (Learner)", xp: 0, avatar: "🦉", isUser: true },
-                { name: "ChattyBot", xp: 30, avatar: "🐸" }
-            ]
-        };
-
-        // Initialization
-        function initApp() {
-            updateDashboardMetrics();
-            loadQuestion();
-            simulateCompetitors();
-        }
-
-        function updateDashboardMetrics() {
-            document.getElementById('streak-val').innerText = appState.streak;
-            document.getElementById('xp-val').innerText = appState.xp;
-            document.getElementById('gem-val').innerText = appState.gems;
-            
-            // Sync user score into Leaderboard Matrix arrays
-            const userObj = appState.competitors.find(c => c.isUser);
-            if(userObj) userObj.xp = appState.xp;
-        }
-
-        function showScreen(screenId) {
-            document.getElementById('quiz-screen').classList.add('hidden');
-            document.getElementById('shop-screen').classList.add('hidden');
-            document.getElementById('leaderboard-screen').classList.add('hidden');
-            document.getElementById('action-drawer').classList.remove('hidden');
-
-            if(screenId === 'quiz') document.getElementById('quiz-screen').classList.remove('hidden');
-            if(screenId === 'shop') {
-                document.getElementById('shop-screen').classList.remove('hidden');
-                document.getElementById('action-drawer').classList.add('hidden');
-            }
-            if(screenId === 'leaderboard') {
-                document.getElementById('leaderboard-screen').classList.remove('hidden');
-                document.getElementById('action-drawer').classList.add('hidden');
-                renderLeaderboard();
-            }
-        }
-
-        function loadQuestion() {
-            // Pick a word
-            const dataItem = vocabulary[appState.currentIdx % vocabulary.length];
-            appState.correctAnswer = dataItem.native;
-            appState.selectedAnswer = null;
-
-            // Update UI elements
-            document.getElementById('question-text').innerText = dataItem.foreign;
-            
-            // Character expressions reset
-            document.getElementById('char-avatar').innerText = "🦉";
+        // Multi-Language Content Repositories
+        const courseData = {
+            spanish: {
+                flag: "🇪🇸",
+                words: [
+                    { id: 1, foreign: "perro", native: "dog" },
+                    { id: 2, foreign: "gato", native: "cat" },
+                    { id: 3, foreign: "pájaro", native: "bird" },
+                    { id: 4, foreign: "caballo", native: "horse" },
+                    { id: 5, foreign: "agua", native: "water" }
+                ]
+            },
+            french: {
+                flag: "🇫🇷",
+                words: [
+                    { id: 1, foreign: "chien", native: "dog" },
+                    { id: 2, foreign: "chat", native: "cat" },
